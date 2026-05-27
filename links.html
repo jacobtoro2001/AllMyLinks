@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Links</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0f;
+      --surface: #16161a;
+      --border: #2a2a35;
+      --text: #e8e8f0;
+      --muted: #6b6b80;
+      --youtube: #ff0000;
+      --steam: #1b9aed;
+      --twitch: #9147ff;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 20px 80px;
+    }
+
+    /* ── Ambient glow background ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 20% 10%, rgba(145, 71, 255, 0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 35% at 80% 80%, rgba(27, 154, 237, 0.10) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 460px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ── Avatar ── */
+    .avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--twitch), var(--steam));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin-bottom: 8px;
+      box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--border);
+    }
+
+    /* ── Name & bio ── */
+    .name {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+
+    .bio {
+      font-size: 0.875rem;
+      color: var(--muted);
+      text-align: center;
+      max-width: 300px;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    /* ── Link buttons ── */
+    .links {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .link-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      border-radius: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 1rem;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .link-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .link-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .link-btn:active {
+      transform: translateY(0px);
+    }
+
+    /* YouTube */
+    .link-btn.yt { --accent: var(--youtube); }
+    .link-btn.yt::before { background: radial-gradient(ellipse at left, rgba(255,0,0,0.12), transparent 70%); }
+    .link-btn.yt:hover { border-color: rgba(255,0,0,0.5); box-shadow: 0 4px 24px rgba(255,0,0,0.18); }
+    .link-btn.yt:hover::before { opacity: 1; }
+
+    /* Steam */
+    .link-btn.steam { --accent: var(--steam); }
+    .link-btn.steam::before { background: radial-gradient(ellipse at left, rgba(27,154,237,0.12), transparent 70%); }
+    .link-btn.steam:hover { border-color: rgba(27,154,237,0.5); box-shadow: 0 4px 24px rgba(27,154,237,0.18); }
+    .link-btn.steam:hover::before { opacity: 1; }
+
+    /* Twitch */
+    .link-btn.twitch { --accent: var(--twitch); }
+    .link-btn.twitch::before { background: radial-gradient(ellipse at left, rgba(145,71,255,0.12), transparent 70%); }
+    .link-btn.twitch:hover { border-color: rgba(145,71,255,0.5); box-shadow: 0 4px 24px rgba(145,71,255,0.18); }
+    .link-btn.twitch:hover::before { opacity: 1; }
+
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: color-mix(in srgb, var(--accent) 20%, transparent);
+    }
+
+    .btn-icon svg { width: 20px; height: 20px; }
+
+    .btn-label { flex: 1; }
+    .btn-sub {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .btn-arrow {
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0 8px;
+    }
+
+    /* ── QR section ── */
+    .qr-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      padding: 8px 18px;
+      border-radius: 99px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .qr-toggle:hover {
+      border-color: var(--twitch);
+      color: var(--text);
+    }
+
+    .qr-panel {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface);
+      width: 100%;
+    }
+
+    .qr-panel.open { display: flex; }
+
+    .qr-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    #qr-url-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      padding: 10px 14px;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    #qr-url-input:focus { border-color: var(--twitch); }
+
+    #qr-generate-btn {
+      background: linear-gradient(135deg, var(--twitch), var(--steam));
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 0.875rem;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    #qr-generate-btn:hover { opacity: 0.85; }
+
+    #qr-output {
+      padding: 12px;
+      background: #fff;
+      border-radius: 10px;
+      display: none;
+    }
+
+    #qr-output canvas, #qr-output img { display: block; }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 32px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Avatar -->
+    <div class="avatar">🎮</div>
+
+    <!-- Name & bio -->
+    <div class="name">YourName</div>
+    <div class="bio">Gamer · Streamer · Content Creator<br>Come hang out 👋</div>
+
+    <!-- Link buttons -->
+    <div class="links">
+
+      <!-- YouTube -->
+      <a class="link-btn yt" href="https://youtube.com/@yourchannel" target="_blank" rel="noopener">
+        <div class="btn-icon">
+          <svg viewBox="0 0 24 24" fill="#ff0000" xmlns="http://www.w3.org/2000/svg">
+            <path d="M23.5 6.2a3.01 3.01 0 0 0-2.12-2.13C19.54 3.6 12 3.6 12 3.6s-7.54 0-9.38.48A3.01 3.01 0 0 0 .5 6.2C0 8.05 0 12 0 12s0 3.95.5 5.8a3.01 3.01 0 0 0 2.12 2.13C4.46 20.4 12 20.4 12 20.4s7.54 0 9.38-.48a3.01 3.01 0 0 0 2.12-2.12C24 15.95 24 12 24 12s0-3.95-.5-5.8zM9.6 15.6V8.4l6.27 3.6-6.27 3.6z"/>
+          </svg>
+        </div>
+        <span class="btn-label">
+          YouTube
+          <span class="btn-sub">@yourchannel</span>
+        </span>
+        <span class="btn-arrow">›</span>
+      </a>
+
+      <!-- Steam -->
+      <a class="link-btn steam" href="https://steamcommunity.com/id/yourid" target="_blank" rel="noopener">
+        <div class="btn-icon">
+          <svg viewBox="0 0 24 24" fill="#1b9aed" xmlns="http://www.w3.org/2000/svg">
+            <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.028 4.524 4.524s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.605 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.29-.249-1.878-.03l1.523.63c.956.4 1.409 1.5 1.009 2.455-.397.957-1.497 1.41-2.454 1.012H7.54zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.665 0-3.015 1.353-3.015 3.015 0 1.665 1.35 3.015 3.015 3.015 1.663 0 3.015-1.35 3.015-3.015zm-5.273-.005c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.252 0-2.265-1.014-2.265-2.265z"/>
+          </svg>
+        </div>
+        <span class="btn-label">
+          Steam
+          <span class="btn-sub">yourid</span>
+        </span>
+        <span class="btn-arrow">›</span>
+      </a>
+
+      <!-- Twitch -->
+      <a class="link-btn twitch" href="https://twitch.tv/yourchannel" target="_blank" rel="noopener">
+        <div class="btn-icon">
+          <svg viewBox="0 0 24 24" fill="#9147ff" xmlns="http://www.w3.org/2000/svg">
+            <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/>
+          </svg>
+        </div>
+        <span class="btn-label">
+          Twitch
+          <span class="btn-sub">yourchannel</span>
+        </span>
+        <span class="btn-arrow">›</span>
+      </a>
+
+    </div>
+
+    <!-- QR Code section -->
+    <div class="divider"></div>
+
+    <button class="qr-toggle" onclick="toggleQR()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/>
+        <rect x="19" y="14" width="2" height="2"/><rect x="14" y="19" width="2" height="2"/>
+        <rect x="18" y="19" width="3" height="2"/>
+      </svg>
+      Generate QR Code for this page
+    </button>
+
+    <div class="qr-panel" id="qr-panel">
+      <p class="qr-label">Once you've hosted this page, paste the URL below to generate your QR code.</p>
+      <input id="qr-url-input" type="url" placeholder="https://yoursite.com/links.html" />
+      <button id="qr-generate-btn" onclick="generateQR()">Generate QR Code</button>
+      <div id="qr-output"></div>
+    </div>
+
+    <div class="footer">✦ Update the links above to your own profiles ✦</div>
+
+  </div>
+
+  <script>
+    function toggleQR() {
+      const panel = document.getElementById('qr-panel');
+      panel.classList.toggle('open');
+    }
+
+    let qrInstance = null;
+
+    function generateQR() {
+      const url = document.getElementById('qr-url-input').value.trim();
+      if (!url) { alert('Please enter a URL first.'); return; }
+
+      const output = document.getElementById('qr-output');
+      output.innerHTML = '';
+      output.style.display = 'block';
+
+      qrInstance = new QRCode(output, {
+        text: url,
+        width: 200,
+        height: 200,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+  </script>
+</body>
+</html>
